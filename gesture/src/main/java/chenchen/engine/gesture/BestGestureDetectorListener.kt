@@ -74,8 +74,21 @@ interface OnTouchGestureListener {
  * 双指移动手势监听
  */
 interface OnMoveGestureListener {
+    /**
+     * 开始移动
+     * @return 是否需要移动 true 接着会调[onMove]、[onMoveEnd] false 就此结束
+     */
     fun onBeginMove(detector: BestGestureDetector): Boolean = true
+
+    /**
+     * 移动中
+     * @return 是否结束移动 true 继续调用[onMove] false 接着会调[onMoveEnd]
+     */
     fun onMove(detector: BestGestureDetector): Boolean
+
+    /**
+     * 结束移动，当手指数变为<2的时候或[onMove]返回false的时候会调
+     */
     fun onMoveEnd(detector: BestGestureDetector) = Unit
 }
 
@@ -83,8 +96,21 @@ interface OnMoveGestureListener {
  * 双指旋转手势监听
  */
 interface OnRotateGestureListener {
+    /**
+     * 开始旋转
+     * @return 是否需要旋转 true 接着会调[onRotate]、[onRotateEnd] false 就此结束
+     */
     fun onBeginRotate(detector: BestGestureDetector): Boolean = true
+
+    /**
+     * 旋转中
+     * @return 是否结束缩放 true 继续调用[onRotate] false 接着会调[onRotateEnd]
+     */
     fun onRotate(detector: BestGestureDetector): Boolean
+
+    /**
+     * 结束缩放，当手指数变为<2的时候或[onRotate]返回false的时候会调
+     */
     fun onRotateEnd(detector: BestGestureDetector) = Unit
 }
 
@@ -100,7 +126,7 @@ interface OnScaleGestureListener {
 
     /**
      * 缩放中
-     * @return 是否结束缩放 true 接着会调[onScaleEnd] false 继续调用[onScale]
+     * @return 是否结束缩放 true 继续调用[onScale] false 接着会调[onScaleEnd]
      */
     fun onScale(detector: BestGestureDetector): Boolean
 
@@ -108,4 +134,24 @@ interface OnScaleGestureListener {
      * 结束缩放，当手指数变为<2的时候或[onScale]返回false的时候会调
      */
     fun onScaleEnd(detector: BestGestureDetector) = Unit
+}
+
+interface OnThrowerListener {
+    /**
+     * 开始扔
+     * 当
+     * @return 是否需要扔 >0 接着会调[onThrow]、[onEndThrow]，<= 0 就此结束
+     */
+    fun onBeginThrow(): Int = 1000
+
+    /**
+     * 扔
+     * @return 是否结束扔 true 继续调用[onThrow] false 接着会调[onEndThrow]
+     */
+    fun onThrow(x: Int, y: Int): Boolean
+
+    /**
+     * 结束扔，当惯性停止的时候或者[onThrow]返回false的时候会调
+     */
+    fun onEndThrow() = Unit
 }
