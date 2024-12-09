@@ -198,7 +198,7 @@ class BestGestureDetector private constructor(
             }
         } else if (state.isInSingleFingerProgress) {
             //单指手势
-            if (touchListener != null) {
+            if (touchListener != null && isMovingEvent()) {
                 state.isInSingleTapScrollProgress = isOutsideCancelClickScrolledThreshold()
                 isHandle = isHandle or onHandleSinglePointerMove()
                 if (isHandle) {
@@ -373,10 +373,22 @@ class BestGestureDetector private constructor(
      */
     private fun isOutsideCancelClickScrolledThreshold(): Boolean {
         return when {
-            abs((startEvent?.x ?: 0f) - (currentEvent?.x ?: 0f)) >=
+            abs((state.startEvent?.x ?: 0f) - (state.currentEvent?.x ?: 0f)) >=
                     state.cancelClickScrollThreshold -> true
-            abs((startEvent?.y ?: 0f) - (currentEvent?.y ?: 0f)) >=
+            abs((state.startEvent?.y ?: 0f) - (state.currentEvent?.y ?: 0f)) >=
                     state.cancelClickScrollThreshold -> true
+            else -> false
+        }
+    }
+
+    /**
+     * 某为、某耀手机会出现一次点击事件，x,y不变的情况下发送DOWN,MOVE,UP三个事件
+     * 其他正常手机和原生逻辑都只是发送DOWN,UP，为统一行为，兼容垃圾系统的异常情况，做一些处理
+     */
+    private fun isMovingEvent(): Boolean {
+        return when {
+            abs((state.startEvent?.x ?: 0f) - (state.currentEvent?.x ?: 0f)) > 0 -> true
+            abs((state.startEvent?.y ?: 0f) - (state.currentEvent?.y ?: 0f)) > 0 -> true
             else -> false
         }
     }
@@ -490,7 +502,9 @@ class BestGestureDetector private constructor(
                 when (event.action) {
                     MotionEvent.ACTION_MOVE -> {
                         //记录第二击是否滑动过
-                        state.isInDoubleTapScrollingProgress = isOutsideCancelClickScrolledThreshold()
+                        if (isMovingEvent()) {
+                            state.isInDoubleTapScrollingProgress = isOutsideCancelClickScrolledThreshold()
+                        }
                     }
                     MotionEvent.ACTION_UP -> {
                         if (!(state.isInDoubleTapScrollingGiveUpClick && state.isInDoubleTapScrollingProgress)) {
